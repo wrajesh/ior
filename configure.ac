@@ -221,6 +221,43 @@ AM_COND_IF([USE_HDF5_AIORI],[
 	AC_CHECK_FUNCS([H5Fdelete])
 ])
 
+AC_ARG_WITH([wekafs],
+        [AS_HELP_STRING([--with-wekafs],
+                [support configurable LIBFE/WEKA @<:@default=check@:>@])],
+        [], [with_wekafs=check])
+
+AS_IF([test "x$with_wekafs" != xno], [
+        # Only add paths if a specific directory was given
+        AS_IF([test "x$with_wekafs" != xcheck && test "x$with_wekafs" != xyes], [
+                WEKAFS_CFLAGS="-I$with_wekafs/include"
+                WEKAFS_LDFLAGS="-L$with_wekafs/lib"
+                WEKAFS_LIBS="-lfe_shared"
+                LDFLAGS="$LDFLAGS $WEKAFS_LDFLAGS"
+                CPPFLAGS="$CPPFLAGS $WEKAFS_CFLAGS"
+        ], [
+                WEKAFS_CFLAGS=""
+                WEKAFS_LDFLAGS=""
+                WEKAFS_LIBS="-lfe_shared"
+        ])
+        AC_CHECK_HEADERS([libfe_api.h libfe_error.h], [AC_DEFINE([USE_LIBFE_AIORI], [], [LIBFE API found])], [
+                if test "x$with_wekafs" != xcheck; then
+                        AC_MSG_FAILURE([--with-wekafs was given, <libfe_api.h> and <libfe_error.h> not found])
+                fi
+        ])
+AS_IF([test "$ac_cv_header_libfe_api_h" = "yes" -o "$ac_cv_header_libfe_error_h" = "yes"], [
+        AC_SEARCH_LIBS([libfeLookupat], [fe_shared], [with_wekafs=yes],
+        [AC_MSG_ERROR([Library containing libfe symbols not found])
+        ])
+        AC_CHECK_TYPES([libfeHandle_t], [], [], [[#include "libfe_api.h"]])
+        AC_SUBST([WEKAFS_CFLAGS])
+        AC_SUBST([WEKAFS_LDFLAGS])
+        AC_SUBST([WEKAFS_LIBS])
+    ])
+])
+AM_CONDITIONAL([USE_WEKAFS_AIORI], [test x$ac_cv_header_libfe_api_h = xyes])
+AM_COND_IF([USE_WEKAFS_AIORI],[
+            AC_DEFINE([USE_WEKAFS_AIORI], [], [LIBFE/WEKA found])
+])
 
 
 # HDFS support

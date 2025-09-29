@@ -128,6 +128,13 @@ extraLDFLAGS += @FINCHFS_RPATH@
 extraLDADD += @FINCHFS_LIBS@
 endif
 
+if USE_WEKAFS_AIORI
+extraSOURCES += aiori-weka.c
+extraCPPFLAGS += @WEKAFS_CFLAGS@
+extraLDFLAGS += @WEKAFS_LDFLAGS@
+extraLDADD   += @WEKAFS_LIBS@
+endif
+
 if USE_S3_4C_AIORI
 extraSOURCES  += aiori-S3-4c.c
 if AWS4C_DIR

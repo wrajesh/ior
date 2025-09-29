@@ -96,6 +96,9 @@ ior_aiori_t *available_aiori[] = {
 #ifdef USE_LIBNFS_AIORI
 	&libnfs_aiori,
 #endif
+#ifdef USE_WEKAFS_AIORI
+	&weka_aiori,
+#endif
         NULL
 };
 
